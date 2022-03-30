@@ -51,7 +51,7 @@ async function handler(event, context) {
       statusCode: 200,
       headers: {
         "content-type": 'application/pdf',
-        'content-disposition': 'attachment; filename='+title
+        'content-disposition': 'attachment; filename='+title+'.pdf'
       },
       body: output.toString('base64'),
       isBase64Encoded: true
