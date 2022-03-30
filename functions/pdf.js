@@ -42,7 +42,7 @@ async function handler(event, context) {
     return {
       statusCode: 200,
       headers: {
-        "content-type": `image/${format}`
+        "content-type": `application/pdf`
       },
       body: output,
       isBase64Encoded: true
