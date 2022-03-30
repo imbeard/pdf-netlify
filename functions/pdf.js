@@ -6,7 +6,8 @@ exports.handler = async (event, context) => {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
     'Access-Control-Allow-Credentials': true,
-    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE'
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE',
+    'Content-Type': 'application/pdf'
   };
 
   if(event.httpMethod == 'OPTIONS'){
@@ -44,7 +45,14 @@ exports.handler = async (event, context) => {
     
       return {
         statusCode: 200,
-        headers,
+        headers:{
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Headers': 'Content-Type',
+          'Access-Control-Allow-Credentials': true,
+          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE',
+          'Content-Type': 'application/pdf',
+          'Content-Length': pdf.length
+        },
         body: JSON.stringify({
           message: `Pdf file ${pageToPdf}`,
           pdfBlob: pdf.toString('base64'),
