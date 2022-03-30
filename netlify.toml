@@ -6,8 +6,3 @@
 [functions]
 directory = "functions"
 
-[[redirects]]
-from = "/*"
-to = "/.netlify/builders/pdf"
-status = 200
-force = true
