@@ -1,6 +1,8 @@
 const { builder } = require("@netlify/functions");
 const chromium = require("chrome-aws-lambda");
 
+ console.log("require")
+
 function isFullUrl(url) {
   try {
     new URL(url);
@@ -18,6 +20,7 @@ async function saveToPdf(url) {
     const pdf = await page.pdf({ format: 'a4', scale: 0.5, printBackground: true });
     await browser.close();
     // Return Buffer
+    console.log("qui")
     return pdf;
 }
 
