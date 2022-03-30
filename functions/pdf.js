@@ -34,7 +34,7 @@ async function saveToPdf(url) {
 async function handler(event, context) {
 
   let pathSplit = event.path.split("/").filter(entry => !!entry);
-  let [url] = pathSplit;
+  let [url,title] = pathSplit;
   console.log(url);
   url = decodeURIComponent(url);
   try {
@@ -49,9 +49,10 @@ async function handler(event, context) {
 
     return {
       statusCode: 200,
-      //headers: {
-      //  "content-type": `application/pdf`
-      //},
+      headers: {
+        "content-type": 'application/pdf',
+        'content-disposition': 'attachment; filename='+title
+      },
       body: output.toString('base64'),
       isBase64Encoded: true
     };
