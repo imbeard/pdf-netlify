@@ -49,9 +49,9 @@ async function handler(event, context) {
 
     return {
       statusCode: 200,
-      headers: {
-        "content-type": `application/pdf`
-      },
+      //headers: {
+      //  "content-type": `application/pdf`
+      //},
       body: output.toString('base64'),
       isBase64Encoded: true
     };
