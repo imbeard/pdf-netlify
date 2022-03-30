@@ -17,6 +17,7 @@ async function saveToPdf(url) {
      const browser = await chromium.puppeteer.launch({
         executablePath: await chromium.executablePath,
         //args: ["--no-sandbox", "--disable-setuid-sandbox"],
+        defaultViewport: chromium.defaultViewport,
         args: chromium.args,
         headless: chromium.headless,
       });
@@ -34,6 +35,7 @@ async function handler(event, context) {
 
   let pathSplit = event.path.split("/").filter(entry => !!entry);
   let [url] = pathSplit;
+  console.log(url);
   url = decodeURIComponent(url);
   try {
     if(!isFullUrl(url)) {
@@ -50,7 +52,7 @@ async function handler(event, context) {
       headers: {
         "content-type": `application/pdf`
       },
-      body: output,
+      body: output.toString('base64'),
       isBase64Encoded: true
     };
   } catch (error) {
