@@ -1,19 +1,19 @@
-let HEADERS = {
-  'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept, Access-Control-Allow-Origin',
-  'Content-Type': 'application/json', //optional
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Max-Age': '8640'
-}
-
-//This solves the "No ‘Access-Control-Allow-Origin’ header is present on the requested resource."
-
-HEADERS['Access-Control-Allow-Origin'] = '*'
-HEADERS['Vary'] = 'Origin'
-
 const chromium = require('chrome-aws-lambda')
 
 exports.handler = async (event, context) => {
 
+  if(event.httpMethod == 'OPTIONS'){
+      const headers = {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE'
+      };
+      return {
+        statusCode: 200, // <-- Must be 200 otherwise pre-flight call fails
+        headers,
+        body: 'This was a preflight call!'
+      };
+  }
 
   const pageToPdf = JSON.parse(event.body).pageToPdf
 
