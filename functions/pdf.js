@@ -6,7 +6,8 @@ async function saveToPdf(url) {
 
      const browser = await chromium.puppeteer.launch({
         executablePath: await chromium.executablePath,
-        args: ["--no-sandbox", "--disable-setuid-sandbox"],
+        //args: ["--no-sandbox", "--disable-setuid-sandbox"],
+        args: chromium.args,
         headless: chromium.headless,
       });
 
@@ -15,7 +16,6 @@ async function saveToPdf(url) {
     const pdf = await page.pdf({ format: 'a4', scale: 0.5, printBackground: true });
     await browser.close();
     // Return Buffer
-    console.log("qui")
     return pdf;
 }
 
@@ -25,7 +25,6 @@ async function handler(event, context) {
   let pathSplit = event.path.split("/").filter(entry => !!entry);
   let [url] = pathSplit;
   url = decodeURIComponent(url);
-
   try {
 
 
