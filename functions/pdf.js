@@ -14,7 +14,19 @@ function isFullUrl(url) {
 }
 
 async function saveToPdf(url) {
-    const browser = await chromium.puppeteer.launch({ args: ["--no-sandbox", "--disable-setuid-sandbox"] });
+    //const browser = await chromium.puppeteer.launch({ args: ["--no-sandbox", "--disable-setuid-sandbox"] });
+
+     const browser = await chromium.puppeteer.launch({
+        executablePath: await chromium.executablePath,
+        args: ["--no-sandbox", "--disable-setuid-sandbox"],
+        defaultViewport: {
+          width: viewport[0],
+          height: viewport[1],
+          //deviceScaleFactor: parseFloat(dpr),
+        },
+        headless: chromium.headless,
+      });
+
     const page = await browser.newPage();
     await page.goto(url);
     const pdf = await page.pdf({ format: 'a4', scale: 0.5, printBackground: true });
