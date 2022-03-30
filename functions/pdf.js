@@ -13,7 +13,7 @@ exports.handler = async (event, context) => {
   if (!pageToPdf)
     return {
       statusCode: 400,
-      headers,
+      headers: headers,
       body: JSON.stringify({ message: 'Page URL not defined' }),
     }
 
@@ -34,7 +34,7 @@ exports.handler = async (event, context) => {
 
   return {
     statusCode: 200,
-    headers,
+    headers: headers,
     body: JSON.stringify({
       message: `Pdf file ${pageToPdf}`,
       pdfBlob: pdf.toString('base64'),
