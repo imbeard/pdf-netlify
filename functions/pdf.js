@@ -1,11 +1,19 @@
 const chromium = require('chrome-aws-lambda')
 
 exports.handler = async (event, context) => {
+
+  const headers = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+  };
+
   const pageToPdf = JSON.parse(event.body).pageToPdf
 
   if (!pageToPdf)
     return {
       statusCode: 400,
+      headers,
       body: JSON.stringify({ message: 'Page URL not defined' }),
     }
 
@@ -26,6 +34,7 @@ exports.handler = async (event, context) => {
 
   return {
     statusCode: 200,
+    headers,
     body: JSON.stringify({
       message: `Pdf file ${pageToPdf}`,
       pdfBlob: pdf.toString('base64'),
