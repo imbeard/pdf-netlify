@@ -2,7 +2,9 @@
   "name": "pdf-api-netlify",
   "version": "1.0.0",
   "description": "A runtime service to use pdf generation on your site.",
-  "scripts": {},
+  "scripts": {
+    "debug": "netlify dev --inspect"
+  },
   "license": "MIT",
   "author": {
     "name": "imbeard",
