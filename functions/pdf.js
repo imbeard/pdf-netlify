@@ -1,19 +1,26 @@
+let HEADERS = {
+  'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept, Access-Control-Allow-Origin',
+  'Content-Type': 'application/json', //optional
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Max-Age': '8640'
+}
+
+//This solves the "No ‘Access-Control-Allow-Origin’ header is present on the requested resource."
+
+HEADERS['Access-Control-Allow-Origin'] = '*'
+HEADERS['Vary'] = 'Origin'
+
 const chromium = require('chrome-aws-lambda')
 
 exports.handler = async (event, context) => {
 
-  const headers = {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Headers": "Content-Type",
-    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-  };
 
   const pageToPdf = JSON.parse(event.body).pageToPdf
 
   if (!pageToPdf)
     return {
       statusCode: 400,
-      headers: headers,
+      HEADERS,
       body: JSON.stringify({ message: 'Page URL not defined' }),
     }
 
@@ -34,7 +41,7 @@ exports.handler = async (event, context) => {
 
   return {
     statusCode: 200,
-    headers: headers,
+    HEADERS,
     body: JSON.stringify({
       message: `Pdf file ${pageToPdf}`,
       pdfBlob: pdf.toString('base64'),
