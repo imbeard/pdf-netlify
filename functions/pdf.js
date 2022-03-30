@@ -1,78 +1,34 @@
-const { builder } = require("@netlify/functions");
-const chromium = require("chrome-aws-lambda");
+const chromium = require('chrome-aws-lambda')
 
-function isFullUrl(url) {
-  try {
-    new URL(url);
-    return true;
-  } catch(e) {
-    // invalid url OR local path
-    return false;
-  }
-}
+exports.handler = async (event, context) => {
+  const pageToPdf = JSON.parse(event.body).pageToPdf
 
-async function saveToPdf(url) {
-    //const browser = await chromium.puppeteer.launch({ args: ["--no-sandbox", "--disable-setuid-sandbox"] });
-
-     const browser = await chromium.puppeteer.launch({
-        executablePath: await chromium.executablePath,
-        //args: ["--no-sandbox", "--disable-setuid-sandbox"],
-        defaultViewport: chromium.defaultViewport,
-        args: chromium.args,
-        headless: chromium.headless,
-      });
-
-    const page = await browser.newPage();
-    await page.goto(url);
-    const pdf = await page.pdf({ format: 'a4', scale: 0.5, printBackground: true });
-    await browser.close();
-    // Return Buffer
-    return pdf;
-}
-
-// Based on https://github.com/DavidWells/netlify-functions-workshop/blob/master/lessons-code-complete/use-cases/13-returning-dynamic-images/functions/return-image.js
-async function handler(event, context) {
-
-  let pathSplit = event.path.split("/").filter(entry => !!entry);
-  let [url,title] = pathSplit;
-  console.log(url);
-  url = decodeURIComponent(url);
-  try {
-    if(!isFullUrl(url)) {
-      throw new Error(`Invalid \`url\`: ${url}`);
+  if (!pageToPdf)
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ message: 'Page URL not defined' }),
     }
 
-    let output = await saveToPdf(url);
+  const browser = await chromium.puppeteer.launch({
+    args: chromium.args,
+    defaultViewport: chromium.defaultViewport,
+    executablePath: await chromium.executablePath,
+    headless: true, //chromium.headless,
+  })
 
-    // output to Function logs
-    console.log(url);
+  const page = await browser.newPage()
 
-    return {
-      statusCode: 200,
-      headers: {
-        "content-type": 'application/pdf',
-        'content-disposition': 'attachment; filename='+title+'.pdf'
-      },
-      body: output.toString('base64'),
-      isBase64Encoded: true
-    };
-  } catch (error) {
-    console.log("Error", error);
+  await page.goto(pageToPdf, { waitUntil: 'networkidle2' })
 
-    return {
-      // We need to return 200 here or Firefox won’t display the image
-      // HOWEVER a 200 means that if it times out on the first attempt it will stay the default image until the next build.
-      statusCode: 200,
-      // HOWEVER HOWEVER, we can set a ttl of 3600 which means that the image will be re-requested in an hour.
-      ttl: 3600,
-      headers: {
-        "content-type": "image/svg+xml",
-        "x-error-message": error.message
-      },
-      body: `<svg version="1.1" id="L4" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 100 100" enable-background="new 0 0 0 0" xml:space="preserve"><circle fill="#000" stroke="none" cx="6" cy="50" r="6"><animate attributeName="opacity" dur="1s" values="0;1;0" repeatCount="indefinite" begin="0.1"/></circle><circle fill="#000" stroke="none" cx="26" cy="50" r="6"><animate attributeName="opacity" dur="1s" values="0;1;0" repeatCount="indefinite" begin="0.2"/></circle><circle fill="#000" stroke="none" cx="46" cy="50" r="6"><animate attributeName="opacity" dur="1s" values="0;1;0" repeatCount="indefinite" begin="0.3"/></circle></svg>`,
-      isBase64Encoded: false,
-    };
+  const pdf = await page.pdf()
+
+  await browser.close()
+
+  return {
+    statusCode: 200,
+    body: JSON.stringify({
+      message: `Pdf file ${pageToPdf}`,
+      pdfBlob: pdf.toString('base64'),
+    }),
   }
 }
-
-exports.handler = builder(handler);
