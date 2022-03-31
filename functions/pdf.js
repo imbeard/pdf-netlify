@@ -38,7 +38,7 @@ exports.handler = async (event, context) => {
 
     await page.goto(pageToPdf, { waitUntil: 'networkidle2' })
 
-    const pdf = await page.pdf({ format: 'a4', scale: 0.5, printBackground: true,displayHeaderFooter: true, headerTemplate: '<div style="font-size:16px;width:100%;text-align:center;">HEADER</div>',
+    const pdf = await page.pdf({ format: 'a4', scale: 0.5, printBackground: true,displayHeaderFooter: true,headerTemplate: '<div style="font-size:16px;width:100%;text-align:center;"></div>',
     footerTemplate: '<div style="font-size:16px;width:100%;text-align:center;">FOOTER</div>',
     margin: {top: '50px', right: '10px', bottom: '50px', left: '10px', }})
 
