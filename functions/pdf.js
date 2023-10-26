@@ -43,7 +43,7 @@ exports.handler = async (event, context) => {
       let multiPDF = []
       for (const url of pageToPdf) {
           await page.goto(url, { waitUntil: 'networkidle2' }); 
-          await merger.add(await page.pdf({ format: 'a4', scale: 0.5, printBackground: true,
+          await merger.add(await page.pdf({ format: 'a4', printBackground: true,
     margin: {top: '50px', right: '0px', bottom: '10px', left: '0px', }}));
         }
     await browser.close()
