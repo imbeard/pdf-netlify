@@ -15,7 +15,8 @@
   "dependencies": {
     "@netlify/functions": "^1.0.0",
     "@sparticuz/chromium": "^118.0.0",
-    "puppeteer-core": "^21.4.1"
+    "puppeteer-core": "^21.4.1",
+    "pdf-merger-js":"^4.2.1"
   },
   "devDependencies": {
     "puppeteer": "^13.5.1"
