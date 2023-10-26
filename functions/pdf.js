@@ -39,16 +39,15 @@ exports.handler = async (event, context) => {
     })
     
     const page = await browser.newPage()
-    if(Array.isArray(pageToPdf)){
+  if(Array.isArray(pageToPdf)){
       let multiPDF = []
       for (const url of pageToPdf) {
           await page.goto(url, { waitUntil: 'networkidle2' }); 
-           multiPDF.push(await page.pdf({ format: 'a4', scale: 0.5, printBackground: true,
-    margin: {top: '50px', right: '0px', bottom: '10px', left: '0px', }}))
+          await merger.add(await page.pdf({ format: 'a4', scale: 0.5, printBackground: true,
+    margin: {top: '50px', right: '0px', bottom: '10px', left: '0px', }}));
         }
     await browser.close()
-     const concatenatedPDF = Buffer.concat(multiPDF);
-
+        const mergedPdfBuffer = await merger.saveAsBuffer();
  
     const base64PDF = concatenatedPDF.toString('base64');
       return {
@@ -56,7 +55,7 @@ exports.handler = async (event, context) => {
         headers,
         body: JSON.stringify({
           message: `Pdf file multipage`,
-          pdfBlob: base64PDF,
+          pdfBlob: mergedPdfBuffer.toString('base64'),
         }),
       }
       
