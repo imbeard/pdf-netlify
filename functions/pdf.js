@@ -48,8 +48,6 @@ exports.handler = async (event, context) => {
         }
     await browser.close()
         const mergedPdfBuffer = await merger.saveAsBuffer();
- 
-    const base64PDF = concatenatedPDF.toString('base64');
       return {
         statusCode: 200,
         headers,
