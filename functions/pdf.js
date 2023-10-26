@@ -2,7 +2,7 @@ const chromium = require('@sparticuz/chromium')
 const puppeteer = require("puppeteer-core");
 const PDFMerger = require("pdf-merger-js"); 
 
-const merger = new PDFMerger();
+
 
 exports.handler = async (event, context) => {
 
@@ -40,7 +40,7 @@ exports.handler = async (event, context) => {
     
     const page = await browser.newPage()
   if(Array.isArray(pageToPdf)){
-      let multiPDF = []
+      const merger = new PDFMerger();
       for (const url of pageToPdf) {
           await page.goto(url, { waitUntil: 'networkidle2' }); 
           await merger.add(await page.pdf({ format: 'a4', printBackground: true,
