@@ -1,4 +1,5 @@
 const chromium = require('@sparticuz/chromium')
+const puppeteer = require("puppeteer-core");
 
 exports.handler = async (event, context) => {
 
@@ -27,7 +28,7 @@ exports.handler = async (event, context) => {
         body: JSON.stringify({ message: 'Page URL not defined' }),
       }
 
-    const browser = await chromium.puppeteer.launch({
+    const browser = await puppeteer.launch({
       args: chromium.args,
       defaultViewport: chromium.defaultViewport,
       executablePath: await chromium.executablePath,
