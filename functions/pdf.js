@@ -44,13 +44,16 @@ exports.handler = async (event, context) => {
     margin: {top: '50px', right: '0px', bottom: '10px', left: '0px', }}))
         }
     await browser.close()
-    
+     const concatenatedPDF = Buffer.concat(multiPDF);
+
+ 
+    const base64PDF = concatenatedPDF.toString('base64');
       return {
         statusCode: 200,
         headers,
         body: JSON.stringify({
           message: `Pdf file multipage`,
-          pdfBlob: multiPDF.toString('base64'),
+          pdfBlob: base64PDF,
         }),
       }
       
