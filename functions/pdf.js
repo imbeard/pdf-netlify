@@ -1,5 +1,8 @@
 const chromium = require('@sparticuz/chromium')
 const puppeteer = require("puppeteer-core");
+const PDFMerger = require("pdf-merger-js"); 
+
+const merger = new PDFMerger();
 
 exports.handler = async (event, context) => {
 
