@@ -36,7 +36,7 @@ exports.handler = async (event, context) => {
     })
     
     const page = await browser.newPage()
-    if(pageToPdf.isArray()){
+    if(Array.isArray(pageToPdf)){
       let multiPDF = []
       for (const url of pageToPdf) {
           await page.goto(url, { waitUntil: 'networkidle2' }); 
