@@ -53,7 +53,7 @@ exports.handler = async (event, context) => {
         headers,
         body: JSON.stringify({
           message: `Pdf file multipage`,
-          pdfBlob: mergedPdfBuffer.toString('base64'),
+          pdfBlob: Buffer.from(mergedPdfBuffer).toString('base64'),
         }),
       }
       
@@ -75,7 +75,7 @@ exports.handler = async (event, context) => {
         headers,
         body: JSON.stringify({
           message: `Pdf file ${pageToPdf}`,
-          pdfBlob: pdf.toString('base64'),
+          pdfBlob: Buffer.from(pdf).toString('base64'),
         }),
       }
       
