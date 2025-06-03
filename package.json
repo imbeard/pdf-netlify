@@ -14,8 +14,8 @@
   "keywords": [],
   "dependencies": {
     "@netlify/functions": "^1.0.0",
-    "@sparticuz/chromium": "^118.0.0",
-    "puppeteer-core": "^21.4.1",
+    "@sparticuz/chromium": "^133.0.0",
+    "puppeteer-core": "^24.10.0",
     "pdf-merger-js":"^4.2.1",
     "file-type": "^18.5.0",
     "node-fetch": "^3.3.2"
