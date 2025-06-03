@@ -42,7 +42,7 @@ exports.handler = async (event, context) => {
   if(Array.isArray(pageToPdf)){
       const merger = new PDFMerger();
       for (const url of pageToPdf) {
-          await page.goto(url, { waitUntil: 'networkidle2' }); 
+          await page.goto(url, { waitUntil: 'domcontentloaded' }); 
           await merger.add(await page.pdf({ format: 'a4', printBackground: true,
     margin: {top: '50px', right: '0px', bottom: '10px', left: '0px', }}));
         }
@@ -59,7 +59,7 @@ exports.handler = async (event, context) => {
       
     }
     else{  
-      await page.goto(pageToPdf, { waitUntil: 'networkidle2' })
+      await page.goto(pageToPdf, { waitUntil: 'domcontentloaded' })
     const pdf = await page.pdf({ format: 'a4', scale: 0.5, printBackground: true,displayHeaderFooter: true,headerTemplate: '<div style="font-size:16px;width:100%;text-align:center;"></div>',
     footerTemplate: `<svg width="1682" height="67" viewBox="0 0 1682 67" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M0 0.5H1682" stroke="#1B3669"/>
