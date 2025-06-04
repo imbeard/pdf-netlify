@@ -176,7 +176,8 @@ exports.handler = async (event, context) => {
         ...PDF_OPTIONS,
         scale: 0.5,
         displayHeaderFooter: true,
-        headerTemplate: `<svg width="1070" height="39" viewBox="0 0 1070 39" fill="none" xmlns="http://www.w3.org/2000/svg">
+        headerTemplate: `<svg width="1070" height="41" viewBox="0 0 1070 41" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M0 40H1070" stroke="black"/>
 <path d="M48.0194 9.02032H46.1924V32.4095H48.0194V9.02032Z" fill="#030304"/>
 <path d="M117.596 9.04596L117.588 9.01675H115.875L115.866 9.04596L108.46 32.4086H110.19L112.279 25.8195H121.183L123.272 32.4086H125.003L117.596 9.04596ZM112.803 24.1695L116.732 11.7758L120.66 24.1695H112.803Z" fill="#030304"/>
 <path d="M57.3548 30.7427V9.02032H55.5279V32.4086H66.9471V30.7427H57.3548Z" fill="#030304"/>
