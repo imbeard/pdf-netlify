@@ -176,6 +176,10 @@ exports.handler = async (event, context) => {
         ...PDF_OPTIONS,
         scale: 0.5,
         displayHeaderFooter: true,
+         margin: {
+          top: '0mm',    // Top margin
+          bottom: '0mm', // Bottom margin
+        },
         headerTemplate: `<svg width="1070" height="41" viewBox="0 0 1070 41" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g clip-path="url(#clip0_993_2)">
 <path d="M0 40H1070" stroke="black"/>
