@@ -35,7 +35,7 @@ const PDF_OPTIONS = {
   format: 'a4',
   printBackground: true,
   preferCSSPageSize: true,
-  margin: { top: '50px', right: '0px', bottom: '10px', left: '0px' }
+  margin: { top: '1px', right: '0px', bottom: '1px', left: '0px' }
 };
 
 // Navigation options for faster loading
@@ -177,8 +177,8 @@ exports.handler = async (event, context) => {
         scale: 0.5,
         displayHeaderFooter: true,
          margin: {
-          top: '0mm',    // Top margin
-          bottom: '0mm', // Bottom margin
+          top: '1px',    // Top margin
+          bottom: '1px', // Bottom margin
         },
         headerTemplate: `<svg width="1070" height="41" viewBox="0 0 1070 41" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g clip-path="url(#clip0_993_2)">
