@@ -175,20 +175,7 @@ exports.handler = async (event, context) => {
       const pdf = await page.pdf({
         ...PDF_OPTIONS,
         scale: 0.5,
-        displayHeaderFooter: true,
-        headerTemplate:`<div class="border-b border-black my-4 pb-2 flex-shrink-0">
-                        <img src="https://nilufar.com/wp-content/uploads/2024/10/logo.svg" class="w-64 py-4" />
-                    </div>`,
-        footerTemplate:` <div class="border-t border-black flex justify-between text-lg pb-8 flex-shrink-0">
-                       <div>
-                                General requests: nilufar@nilufar.com<br/>
-                                Customer service: customerservice@nilufar.com
-                      </div>
-                       <div>
-                                Gallery - Via della Spiga 32, Milan - +39 02 780193<br/>
-                                Depot - Viale Vincenzo Lancetti 34, Milan - +39 02 36590800
-                      </div>
-                    </div>`,
+        displayHeaderFooter: false,
          margin: {
           top: '1px',    // Top margin
           bottom: '1px', // Bottom margin
