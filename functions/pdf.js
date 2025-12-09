@@ -86,13 +86,16 @@ export default async (req, context) => {
     const blobKey = `${sanitizedName}-${productId}`;
     
     // Check if PDF already exists
-    const existingBlob = await store.get(blobKey);
+    const existingBlob = await store.get(blobKey, { type: 'arrayBuffer' });
     
     if (existingBlob) {
       console.log(`Serving cached PDF for ${blobKey}`);
       
+      // Convert ArrayBuffer to Buffer
+      const buffer = Buffer.from(existingBlob);
+      
       // Return cached PDF directly
-      return new Response(existingBlob, {
+      return new Response(buffer, {
         status: 200,
         headers: {
           ...headers,
