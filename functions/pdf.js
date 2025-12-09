@@ -1,7 +1,7 @@
-const chromium = require('@sparticuz/chromium')
-const puppeteer = require("puppeteer-core");
-const PDFMerger = require("pdf-merger-js");
-const { getStore } = require('@netlify/blobs');
+import chromium from '@sparticuz/chromium';
+import puppeteer from 'puppeteer-core';
+import PDFMerger from 'pdf-merger-js';
+import { getStore } from '@netlify/blobs';
 
 // Global browser instance for reuse
 let globalBrowser = null;
@@ -45,44 +45,42 @@ const NAV_OPTIONS = {
   timeout: 8000
 };
 
-exports.handler = async (event, context) => {
+export default async (req, context) => {
   const timeoutBuffer = 2000;
   const startTime = Date.now();
   
   const headers = {
-    'Access-Control-Allow-Origin': '*', // Fixed: removed credentials conflict
+    'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
     'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE'
   };
 
-  if(event.httpMethod === 'OPTIONS'){
-    return {
-      statusCode: 200,
-      headers,
-      body: ''
-    };
+  if(req.method === 'OPTIONS'){
+    return new Response('', {
+      status: 200,
+      headers
+    });
   }
 
-  if(event.httpMethod !== 'POST') {
-    return {
-      statusCode: 405,
-      headers,
-      body: JSON.stringify({ message: 'Method not allowed' })
-    };
+  if(req.method !== 'POST') {
+    return new Response(JSON.stringify({ message: 'Method not allowed' }), {
+      status: 405,
+      headers
+    });
   }
 
   let browser = null;
   let page = null;
 
   try {
-    const { pageToPdf } = JSON.parse(event.body);
+    const body = await req.text();
+    const { pageToPdf } = JSON.parse(body);
 
     if (!pageToPdf) {
-      return {
-        statusCode: 400,
-        headers,
-        body: JSON.stringify({ message: 'Page URL not defined' }),
-      };
+      return new Response(JSON.stringify({ message: 'Page URL not defined' }), {
+        status: 400,
+        headers
+      });
     }
 
     const checkTimeout = () => {
@@ -161,7 +159,7 @@ exports.handler = async (event, context) => {
     }
 
     // Store PDF in Netlify Blobs
-    const store = getStore('nilufarpdfs');
+    const store = getStore('pdfs');
     const filename = `${Date.now()}-${Math.random().toString(36).substring(7)}.pdf`;
     
     await store.set(filename, pdfBuffer, {
@@ -172,31 +170,29 @@ exports.handler = async (event, context) => {
     });
     
     // Return URL instead of base64
-    const pdfUrl = `${process.env.URL}/.netlify/blobs/serve/nilufarpdfs/${filename}`;
+    const pdfUrl = `${process.env.URL}/.netlify/blobs/serve/pdfs/${filename}`;
     
-    return {
-      statusCode: 200,
-      headers,
-      body: JSON.stringify({
-        success: true,
-        message: 'PDF generated successfully',
-        pdfUrl: pdfUrl,
-        filename: filename,
-        ...pageInfo
-      }),
-    };
+    return new Response(JSON.stringify({
+      success: true,
+      message: 'PDF generated successfully',
+      pdfUrl: pdfUrl,
+      filename: filename,
+      ...pageInfo
+    }), {
+      status: 200,
+      headers
+    });
 
   } catch (error) {
     console.error('PDF generation error:', error);
     
-    return {
-      statusCode: 500,
-      headers,
-      body: JSON.stringify({ 
-        message: 'PDF generation failed', 
-        error: error.message 
-      }),
-    };
+    return new Response(JSON.stringify({ 
+      message: 'PDF generation failed', 
+      error: error.message 
+    }), {
+      status: 500,
+      headers
+    });
     
   } finally {
     if (page) {
