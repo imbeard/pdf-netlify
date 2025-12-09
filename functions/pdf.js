@@ -161,7 +161,7 @@ exports.handler = async (event, context) => {
     }
 
     // Store PDF in Netlify Blobs
-    const store = getStore('pdfs');
+    const store = getStore('nilufarpdfs');
     const filename = `${Date.now()}-${Math.random().toString(36).substring(7)}.pdf`;
     
     await store.set(filename, pdfBuffer, {
@@ -172,7 +172,7 @@ exports.handler = async (event, context) => {
     });
     
     // Return URL instead of base64
-    const pdfUrl = `${process.env.URL}/.netlify/blobs/serve/pdfs/${filename}`;
+    const pdfUrl = `${process.env.URL}/.netlify/blobs/serve/nilufarpdfs/${filename}`;
     
     return {
       statusCode: 200,
