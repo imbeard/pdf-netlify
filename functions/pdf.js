@@ -1,6 +1,7 @@
 const chromium = require('@sparticuz/chromium')
 const puppeteer = require("puppeteer-core");
-const PDFMerger = require("pdf-merger-js"); 
+const PDFMerger = require("pdf-merger-js");
+const { getStore } = require('@netlify/blobs');
 
 // Global browser instance for reuse
 let globalBrowser = null;
@@ -24,7 +25,7 @@ async function getBrowser() {
     ],
     defaultViewport: chromium.defaultViewport,
     executablePath: await chromium.executablePath(),
-    headless: 'new' // Use new headless mode
+    headless: 'new'
   });
   
   return globalBrowser;
@@ -40,27 +41,25 @@ const PDF_OPTIONS = {
 
 // Navigation options for faster loading
 const NAV_OPTIONS = {
-  waitUntil: 'domcontentloaded', // Changed from 'networkidle2' for speed
-  timeout: 8000 // 8 second timeout per page
+  waitUntil: 'domcontentloaded',
+  timeout: 8000
 };
 
 exports.handler = async (event, context) => {
-  // Set function timeout buffer
-  const timeoutBuffer = 2000; // 2 seconds buffer
+  const timeoutBuffer = 2000;
   const startTime = Date.now();
   
   const headers = {
-  'Access-Control-Allow-Origin': 'https://nilufar.com',
-  'Access-Control-Allow-Headers': 'Content-Type',
-  'Access-Control-Allow-Credentials': true,
-  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE'
+    'Access-Control-Allow-Origin': '*', // Fixed: removed credentials conflict
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE'
   };
 
   if(event.httpMethod === 'OPTIONS'){
     return {
       statusCode: 200,
       headers,
-      body: 'This was a preflight call!'
+      body: ''
     };
   }
 
@@ -86,7 +85,6 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // Check if we're approaching timeout
     const checkTimeout = () => {
       return (Date.now() - startTime) > (10000 - timeoutBuffer);
     };
@@ -94,24 +92,15 @@ exports.handler = async (event, context) => {
     browser = await getBrowser();
     page = await browser.newPage();
     
-    // Optimize page settings
     await page.setDefaultNavigationTimeout(8000);
     await page.setDefaultTimeout(8000);
-    
-    // Disable images and CSS for faster loading (optional)
-    // await page.setRequestInterception(true);
-    // page.on('request', (req) => {
-    //   if(req.resourceType() == 'stylesheet' || req.resourceType() == 'image'){
-    //     req.abort();
-    //   } else {
-    //     req.continue();
-    //   }
-    // });
+
+    let pdfBuffer;
+    let pageInfo = {};
 
     if (Array.isArray(pageToPdf)) {
-      // Handle multiple pages with timeout checks
       const merger = new PDFMerger();
-      const maxPages = Math.min(pageToPdf.length, 5); // Limit pages to avoid timeout
+      const maxPages = Math.min(pageToPdf.length, 5);
       
       for (let i = 0; i < maxPages; i++) {
         if (checkTimeout()) {
@@ -122,75 +111,80 @@ exports.handler = async (event, context) => {
         try {
           await page.goto(url, NAV_OPTIONS);
           
-          // Wait for essential content only
           await page.evaluate(() => {
             return new Promise((resolve) => {
               if (document.readyState === 'complete') {
                 resolve();
               } else {
                 window.addEventListener('load', resolve);
-                // Fallback timeout
                 setTimeout(resolve, 2000);
               }
             });
           });
           
-          const pdfBuffer = await page.pdf(PDF_OPTIONS);
-          await merger.add(pdfBuffer);
+          const pdf = await page.pdf(PDF_OPTIONS);
+          await merger.add(pdf);
         } catch (pageError) {
           console.error(`Error processing page ${url}:`, pageError);
-          // Continue with other pages instead of failing completely
         }
       }
 
-      const mergedPdfBuffer = await merger.saveAsBuffer();
-      
-      return {
-        statusCode: 200,
-        headers,
-        body: JSON.stringify({
-          message: `PDF file multipage (${maxPages}/${pageToPdf.length} pages)`,
-          pdfBlob: Buffer.from(mergedPdfBuffer).toString('base64'),
-          processedPages: maxPages,
-          totalPages: pageToPdf.length
-        }),
+      pdfBuffer = await merger.saveAsBuffer();
+      pageInfo = {
+        processedPages: maxPages,
+        totalPages: pageToPdf.length
       };
       
     } else {
-      // Single page processing
       await page.goto(pageToPdf, NAV_OPTIONS);
       
-      // Wait for essential content
       await page.evaluate(() => {
         return new Promise((resolve) => {
           if (document.readyState === 'complete') {
             resolve();
           } else {
             window.addEventListener('load', resolve);
-            setTimeout(resolve, 2000); // Fallback
+            setTimeout(resolve, 2000);
           }
         });
       });
       
-      const pdf = await page.pdf({
+      pdfBuffer = await page.pdf({
         ...PDF_OPTIONS,
         scale: 0.5,
         displayHeaderFooter: false,
-         margin: {
-          top: '1px',    // Top margin
-          bottom: '1px', // Bottom margin
+        margin: {
+          top: '1px',
+          bottom: '1px',
         }
       });
-      
-      return {
-        statusCode: 200,
-        headers,
-        body: JSON.stringify({
-          message: `PDF file ${pageToPdf}`,
-          pdfBlob: Buffer.from(pdf).toString('base64'),
-        }),
-      };
     }
+
+    // Store PDF in Netlify Blobs
+    const store = getStore('pdfs');
+    const filename = `${Date.now()}-${Math.random().toString(36).substring(7)}.pdf`;
+    
+    await store.set(filename, pdfBuffer, {
+      metadata: { 
+        contentType: 'application/pdf',
+        createdAt: new Date().toISOString()
+      }
+    });
+    
+    // Return URL instead of base64
+    const pdfUrl = `${process.env.URL}/.netlify/blobs/serve/pdfs/${filename}`;
+    
+    return {
+      statusCode: 200,
+      headers,
+      body: JSON.stringify({
+        success: true,
+        message: 'PDF generated successfully',
+        pdfUrl: pdfUrl,
+        filename: filename,
+        ...pageInfo
+      }),
+    };
 
   } catch (error) {
     console.error('PDF generation error:', error);
@@ -205,7 +199,6 @@ exports.handler = async (event, context) => {
     };
     
   } finally {
-    // Clean up page but keep browser for reuse
     if (page) {
       try {
         await page.close();
@@ -214,8 +207,6 @@ exports.handler = async (event, context) => {
       }
     }
     
-    // Only close browser if we're running out of memory or on cold start
-    // This is optional - you might want to keep it open for performance
     if (context.getRemainingTimeInMillis && context.getRemainingTimeInMillis() < 1000) {
       if (globalBrowser) {
         try {
